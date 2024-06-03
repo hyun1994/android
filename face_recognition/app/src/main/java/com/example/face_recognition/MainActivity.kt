@@ -17,27 +17,23 @@ import com.example.face_recognition.databinding.ActivityMainBinding
 import com.example.recognition.recognition.Camera
 import com.example.recognition.recognition.detection.FaceAnalyzerListener
 
-@SuppressLint("ParcelCreator")
-abstract class MainActivity() : AppCompatActivity(), FaceAnalyzerListener, Parcelable {
+
+class MainActivity() : AppCompatActivity(), FaceAnalyzerListener {
     private lateinit var binding : ActivityMainBinding
     private val camera = Camera(this)
 
-    constructor(parcel: Parcel) : this() {
-
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater).apply {
-            setContentView(root)
-            setProgressText("시작하기를 눌러주세요.")
-            camera.initCamera(cameraLayout, this@MainActivity)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setProgressText("시작하기를 눌러주세요.")
+        camera.initCamera(binding.cameraLayout, this)
 
-            startDetectButton.setOnClickListener {
-                it.isVisible = false
-                camera.startFaceDetect()
-                setProgressText("얼굴을 보여주세요.")
-            }
+        binding.startDetectButton.setOnClickListener {
+            it.isVisible = false
+            binding.faceOverlayView.reset()
+            camera.startFaceDetect()
+            setProgressText("얼굴을 보여주세요.")
         }
     }
 
@@ -52,15 +48,16 @@ abstract class MainActivity() : AppCompatActivity(), FaceAnalyzerListener, Parce
     }
 
     override fun notDetect() {
-
+        binding.faceOverlayView.reset()
     }
 
     override fun detectProgress(progress: Float, message: String) {
         setProgressText(message)
+        binding.faceOverlayView.setProgress(progress)
     }
 
     override fun faceSize(rectF: RectF, sizeF: SizeF, pointF: PointF) {
-
+        binding.faceOverlayView.setSize(rectF, sizeF, pointF)
     }
 
     override fun onRequestPermissionsResult(
